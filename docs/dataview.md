@@ -14,8 +14,6 @@ dataview可视为一个基于pandas实现的的针对因子场景的数据库,�
 # 数据下载
 dataview目前可以通过jaqs官方提供的免费数据源直接从网络获取行情数据和参考数据
 
-***目前，官方尚未提供可获取数据的详细文档，大鱼金融将随时关注官方在数据文档的最新动态并进行更新***
-
 *** 步骤 ***
 1. 配置数据下载的tcp地址(data_config)--使用jaqs官方提供的免费数据源需要提前去官网注册账号,方可使用
 2. 创建DataView和DataService
@@ -48,13 +46,6 @@ dv.init_from_config(props, ds)
 dv.prepare_data()
 ```
 
-    
-    Begin: DataApi login 18566262672@tcp://data.tushare.org:8910
-        login success 
-    
-    Initialize config success.
-
-
 **props参数**
 
 |字段|缺省值|类型|说明|
@@ -68,6 +59,817 @@ dv.prepare_data()
 |freq |1 |int |数据类型，目前只支持1，表示日线数据|
 |all_price |True |bool |是否默认下载所有日线行情相关数据。默认下载|
 |adjust_mode |'post' |string |行情数据复权类型，默认后复权,目前只支持后复权|
+
+## fields可选字段查询方式
+dataview的底层数据api提供了字段的文档，可供查阅。目前,只提供了**A股财务数据**的相关字段文档。更过品种、行情相关字段文档请关注[jaqs官方数据文档](http://jaqs.readthedocs.io/zh_CN/latest/)
+
+
+```python
+from jaqs.data import DataApi
+
+api = DataApi(data_config["remote.data.address"]) # 传入连接到的远端数据服务器的tcp地址
+api.login(username=data_config["remote.data.username"],
+          password=data_config["remote.data.password"])
+```
+
+
+
+
+    ('username: 18566262672', '0,')
+
+
+
+### help.apiList
+
+**简要描述：**
+
+- 查询可选字段的类别
+
+**示例：**
+
+
+```python
+df , msg = api.query(
+                    view="help.apiList",
+                    fields="",
+                    filter="")
+df
+```
+
+
+
+
+<div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+
+    .dataframe thead th {
+        text-align: left;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>api</th>
+      <th>comment</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>jy.balanceSheet</td>
+      <td>资产负债表</td>
+      <td>资产负债表</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>jy.cashFlow</td>
+      <td>现金流量表</td>
+      <td>现金流量表</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>jy.income</td>
+      <td>利润表</td>
+      <td>利润表</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>jz.instrumentInfo</td>
+      <td>证券基本信息</td>
+      <td>证券基础信息</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>jz.secTradeCal</td>
+      <td>交易日历</td>
+      <td>交易日历</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>lb.indexCons</td>
+      <td>指数成份股</td>
+      <td>指数成份股</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>lb.indexInfo</td>
+      <td>指数基本信息</td>
+      <td>指数基本信息</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>lb.industryType</td>
+      <td>行业代码表</td>
+      <td>行业代码表</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>lb.mfNav</td>
+      <td>公募基金净值</td>
+      <td>公募基金净值</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>lb.secAdjFactor</td>
+      <td>复权因子</td>
+      <td>复权因子</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>lb.secDividend</td>
+      <td>分红送股</td>
+      <td>分红送股表</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>lb.secIndustry</td>
+      <td>行业分类信息</td>
+      <td>行业分类</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>lb.secSusp</td>
+      <td>停复牌数据</td>
+      <td>停复牌</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### help.apiParam
+
+**简要描述：**
+
+- 查询每个大类别下的可选字段及描述
+- 通过filter字段可以限定查询的大类
+- 返回结果中,param对应的即是dataview里的可选字段(fields)
+
+**示例：**
+
+
+```python
+df ,msg = api.query(view="help.apiParam",fields="",filter="api=jy.cashFlow") # 查询现金流量表可选字段
+df
+```
+
+
+
+
+<div>
+<style>
+    .dataframe thead tr:only-child th {
+        text-align: right;
+    }
+
+    .dataframe thead th {
+        text-align: left;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>api</th>
+      <th>comment</th>
+      <th>dtype</th>
+      <th>must</th>
+      <th>param</th>
+      <th>pname</th>
+      <th>ptype</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>N</td>
+      <td>symbol</td>
+      <td>证券代码</td>
+      <td>IN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>N</td>
+      <td>start_date</td>
+      <td>公告开始日期</td>
+      <td>IN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>N</td>
+      <td>end_date</td>
+      <td>公告结束日期</td>
+      <td>IN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>N</td>
+      <td>start_reportdate</td>
+      <td>报告期开始日期</td>
+      <td>IN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>N</td>
+      <td>start_reportdate</td>
+      <td>报告期结束日期</td>
+      <td>IN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>Y</td>
+      <td>symbol</td>
+      <td>证券代码</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>Y</td>
+      <td>ann_date</td>
+      <td>公告日期</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>String</td>
+      <td>Y</td>
+      <td>report_date</td>
+      <td>报告期</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>cash_recp_sg_and_rs</td>
+      <td>销售商品、提供劳务收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>recp_tax_rends</td>
+      <td>收到的税费返还</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_incr_dep_cob</td>
+      <td>客户存款和同业存放款项净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_incr_loans_central_bank</td>
+      <td>向中央银行借款净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_incr_fund_borr_ofi</td>
+      <td>向其他金融机构拆入资金净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_incr_disp_tfa</td>
+      <td>处置交易性金融资产净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_incr_int_handling_chrg</td>
+      <td>收取利息和手续费净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_incr_repurch_bus_fund</td>
+      <td>回购业务资金净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>other_cash_recp_ral_oper_act</td>
+      <td>收到其他与经营活动有关的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>stot_cash_inflows_oper_act</td>
+      <td>经营活动现金流入小计</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_pay_goods_purch_serv_rec</td>
+      <td>购买商品、接受劳务支付的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_pay_beh_empl</td>
+      <td>支付给职工以及为职工支付的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>pay_all_typ_tax</td>
+      <td>支付的各项税费</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_incr_clients_loan_adv</td>
+      <td>客户贷款及垫款净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_incr_dep_cbob</td>
+      <td>存放央行和同业款项净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>stot_cash_outflows_oper_act</td>
+      <td>经营活动现金流出小计</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_cash_flows_oper_act</td>
+      <td>经营活动产生的现金流量净额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_recp_disp_withdrwl_invest</td>
+      <td>收回投资收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>cash_recp_return_invest</td>
+      <td>取得投资收益收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_cash_recp_disp_fiolta</td>
+      <td>处置固定资产、无形资产和其他长期资产收回的现金净额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_cash_recp_disp_sobu</td>
+      <td>处置子公司及其他营业单位收到的现金净额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>other_cash_recp_ral_inv_act</td>
+      <td>收到其他与投资活动有关的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>net_cash_flows_inv_act</td>
+      <td>投资活动产生的现金流量净额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_recp_cap_contrib</td>
+      <td>吸收投资收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>incl_cash_rec_saims</td>
+      <td>其中:子公司吸收少数股东投资收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_recp_borrow</td>
+      <td>取得借款收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>proc_issue_bonds</td>
+      <td>发行债券收到的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>Y</td>
+      <td>other_cash_recp_ral_fnc_act</td>
+      <td>收到其他与筹资活动有关的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>stot_cash_inflows_fnc_act</td>
+      <td>筹资活动现金流入小计</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_prepay_amt_borr</td>
+      <td>偿还债务支付的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>cash_pay_dist_dpcp_int_exp</td>
+      <td>分配股利、利润或偿付利息支付的现金</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>stot_cash_outflows_fnc_act</td>
+      <td>筹资活动现金流出小计</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_cash_flows_fnc_act</td>
+      <td>筹资活动产生的现金流量净额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>eff_fx_flu_cash</td>
+      <td>汇率变动对现金及现金等价物的影响</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_incr_cash_cash_equ</td>
+      <td>现金及现金等价物净增加额</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>net_profit</td>
+      <td>净利润</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>amort_intang_assets</td>
+      <td>无形资产摊销</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>amort_lt_deferred_exp</td>
+      <td>长期待摊费用摊销</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>loss_disp_fiolta</td>
+      <td>处置固定、无形资产和其他长期资产的损失</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>loss_scr_fa</td>
+      <td>固定资产报废损失</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>fin_exp</td>
+      <td>财务费用</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>invest_loss</td>
+      <td>投资损失</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>decr_deferred_inc_tax_assets</td>
+      <td>递延所得税资产减少</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>incr_deferred_inc_tax_liab</td>
+      <td>递延所得税负债增加</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>decr_inventories</td>
+      <td>存货的减少</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>decr_oper_payable</td>
+      <td>经营性应收项目的减少</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>incr_oper_payable</td>
+      <td>经营性应付项目的增加</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>others</td>
+      <td>其他</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>conv_debt_into_cap</td>
+      <td>债务转为资本</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>conv_corp_bonds_due_within_1y</td>
+      <td>一年内到期的可转换公司债券</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>fa_fnc_leases</td>
+      <td>融资租入固定资产</td>
+      <td>OUT</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>jy.cashFlow</td>
+      <td></td>
+      <td>Double</td>
+      <td>N</td>
+      <td>end_bal_cash</td>
+      <td>现金的期末余额</td>
+      <td>OUT</td>
+    </tr>
+  </tbody>
+</table>
+<p>67 rows × 7 columns</p>
+</div>
+
+
 
 # 数据查询
 
